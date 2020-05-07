@@ -1,16 +1,19 @@
-FROM tensorflow/tensorflow:latest
+FROM rocm/tensorflow:latest
 
+# needed for libjasper-dev and others
+RUN add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
 RUN apt-get update -y --fix-missing
 RUN apt-get install -y ffmpeg
 RUN apt-get install -y build-essential cmake pkg-config \
-                    libjpeg8-dev libtiff5-dev libjasper-dev libpng12-dev \
+                    libjpeg8-dev libtiff5-dev libjasper-dev\
                     libavcodec-dev libavformat-dev libswscale-dev libv4l-dev \
                     libxvidcore-dev libx264-dev \
+                    libpng-dev \
+                    libgdk-pixbuf2.0-dev \
                     libgtk-3-dev \
                     libatlas-base-dev gfortran \
                     libboost-all-dev \
-                    python3 python3-dev python3-numpy \
-                    unzip
+                    python3 python3-dev python3-numpy
 
 RUN apt-get install -y wget vim python3-tk python3-pip
 
@@ -36,7 +39,7 @@ RUN cd /opencv-3.2.0/ \
             -D WITH_FFMPEG=1 \
             -D WITH_CUDA=0 \
             .. \
-    && make -j8 \
+    && make -j20 \
     && make install \
     && ldconfig \
     && rm /opencv.zip \
@@ -52,7 +55,7 @@ RUN cd dlib-19.4 \
     && mkdir build \
     && cd build \
     && cmake .. \
-    && cmake --build . --config Release \
+    && cmake --build . --config Release -- -j20 \
     && cd /dlib-19.4 \
     && pip3 install setuptools \
     && python3 setup.py install \
@@ -66,4 +69,3 @@ RUN pip3 install -r /requirements.txt
 
 
 CMD ["/bin/bash"]
-

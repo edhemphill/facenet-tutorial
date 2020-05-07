@@ -51,7 +51,12 @@ def preprocess_image(input_path, output_path, crop_dim):
     image = _process_image(input_path, crop_dim)
     if image is not None:
         logger.debug('Writing processed file: {}'.format(output_path))
-        cv2.imwrite(output_path, image)
+        # the path needs to exist first
+        needir = os.path.dirname(output_path)
+        if not os.path.isdir(needir) :
+            os.makedirs(needir)
+        if not cv2.imwrite(output_path, image):
+            logger.error('Writing FAILED for file: {}'.format(output_path))
     else:
         logger.warning("Skipping filename: {}".format(input_path))
 
